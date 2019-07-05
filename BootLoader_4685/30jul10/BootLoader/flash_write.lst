@@ -1,0 +1,2812 @@
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;//Last modified date 06Jan'11 1218 hrs 
+                      00002 ;;;;;;;;;;;;;;;;;;;;PIC18F4685 FILE INCLUDE;;;;;;;;;;;;;;;;;;;;;;;;
+                      00003 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00004         list     p=18f4685                      ;;;;;;;;;;;;;;;;;;
+                      00005         #include p18f4685.inc                   ;;;;;;;;;;;;;;;;;;
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ;  MPASM PIC18F4685 processor include
+                      00005 ; 
+                      00006 ;  (c) Copyright 1999-2007 Microchip Technology, All rights reserved
+                      00007 ;==========================================================================
+                      00008 
+                      04822         LIST
+                      00006 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00007 ;;;;;;;;;;;;;;;;;CONFIGERATION BIT;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00008 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Warning[230]: __CONFIG has been deprecated for PIC18 devices.  Use directive CONFIG.
+300000 32FF           00009         __CONFIG        _CONFIG1H, _OSC_HS_1H & _FCMEN_OFF_1H & _IESO_OFF_1H                            
+                                                    ;;
+Warning[230]: __CONFIG has been deprecated for PIC18 devices.  Use directive CONFIG.
+                      00010         __CONFIG        _CONFIG2L, _PWRT_OFF_2L & _BOREN_OFF_2L & _BORV_2_2L                            
+                            ;;                                      
+Warning[230]: __CONFIG has been deprecated for PIC18 devices.  Use directive CONFIG.
+300002 EEF1           00011         __CONFIG        _CONFIG2H, _WDT_OFF_2H & _WDTPS_128_2H                                          
+                                    ;;
+Warning[230]: __CONFIG has been deprecated for PIC18 devices.  Use directive CONFIG.
+300004 FDFF           00012         __CONFIG        _CONFIG3H, _MCLRE_ON_3H & _LPT1OSC_ON_3H & _PBADEN_OFF_3H                       
+                                                                                    ;;
+Warning[230]: __CONFIG has been deprecated for PIC18 devices.  Use directive CONFIG.
+300006 FF8B           00013         __CONFIG        _CONFIG4L, _DEBUG_OFF_4L & _XINST_OFF_4L & _BBSIZ_1024_4L & _LVP_OFF_4L         
+                                    ;;
+Warning[230]: __CONFIG has been deprecated for PIC18 devices.  Use directive CONFIG.
+                      00014         __CONFIG        _CONFIG5L, _CP0_OFF_5L & _CP1_OFF_5L & _CP2_OFF_5L & _CP3_OFF_5L & _CP4_OFF_5L ;
+                            ;                                                                                       ;;
+Warning[230]: __CONFIG has been deprecated for PIC18 devices.  Use directive CONFIG.
+300008 FFFF           00015         __CONFIG        _CONFIG5H, _CPB_OFF_5H & _CPD_OFF_5H                                            
+                                    ;;
+Warning[230]: __CONFIG has been deprecated for PIC18 devices.  Use directive CONFIG.
+                      00016         __CONFIG        _CONFIG6L, _WRT0_OFF_6L & _WRT1_OFF_6L & _WRT2_OFF_6L & _WRT3_OFF_6L & _WRT4_OFF
+                            _6L                                                                                     ;;
+Warning[230]: __CONFIG has been deprecated for PIC18 devices.  Use directive CONFIG.
+30000A FFFF           00017         __CONFIG        _CONFIG6H, _WRTB_OFF_6H & _WRTC_OFF_6H & _WRTD_OFF_6H                   ;;
+Warning[230]: __CONFIG has been deprecated for PIC18 devices.  Use directive CONFIG.
+30000C 40FF           00018         __CONFIG        _CONFIG7L, _EBTR0_OFF_7L & _EBTR1_OFF_7L & _EBTR2_OFF_7L & _EBTR3_OFF_7L & _EBTR
+                            4_OFF_7L                                                                                ;;
+                      00019  ;      __CONFIG        _CONFIG7H, _EBTRB_OFF_7H & _DEVID1 & _IDLOC0                                    
+                                                                    ;;
+                      00020 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00021 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00022 ;->THIS THE CONFIGRATION POINT IT CAN CHANG ACCRODING TO OUR REQUIRMENT                 ;;
+                      00023 ;->THIS CAN'T CHANGE AT LOADING THE NORMAL PROGRAM                                                      
+                                    ;;
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00024 ;->CAN CHANGE ONLY WHEN THE PROGRAMING THE MICROCONTROLLER WITH THE BOOTLOADER  ;;
+                      00025 ;->p16F877a.inc CONTAIN THE MEANING OF THE CONFIGERATION WORD                                   ;;
+                      00026 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00027 
+                      00028 ;-------------general purpose register definitions-------
+                      00029 
+  00000019            00030 DlyCnt1          equ       0019h                
+  00000020            00031 DlyCnt2          equ       0020h
+  00000022            00032 DlyCnt3          equ       0022h
+  00000021            00033 CharValid        equ       0021h
+                      00034 ;--------------------------------------------------------
+                      00035 ;;;;;;;;;;;;;;;RESET PROGRAM START POINT;;;;;;;;;;;;;;;;;;;;;;;;;;
+000000                00036         ORG             0x0000                                          ;;
+000000 EF4F F0BF      00037         GOTO    MAIN                                            ;;
+                      00038 ;;;;;;;;;;;;;;;INTERRUPT VECTOR;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+000008                00039         ORG 0x000008                                            ;;
+000008 0011           00040         RETFIE FAST             ;HIGH PRIORITY INTERRUPT VECTOR ;;
+                      00041                                                                 ;;
+000018                00042         ORG 0x000018                                            ;;
+000018 0011           00043         RETFIE FAST             ;LOW PRIORITY INTERRUPT VECTOR  ;;
+                      00044 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00045 ;;;;;;;;;;;;BOOTLOADING START ADDRESS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00046         ;ORG            0x13EF6         ;THIS THE BOOTLOADING START POINT;
+017E76                00047      ORG                0x17e76         ;THIS THE BOOTLOADING START POINT;
+                      00048         ;ORG            0x13e86         ;THIS THE BOOTLOADING START POINT;
+                      00049 
+                      00050 
+017E76                00051 RECIVE:                                                         ;;
+017E76                00052 WRD:                                                            ;;
+017E76 AA9E           00053         BTFSS   PIR1,RCIF,0     ;CHECK ANY NEW                  ;;
+017E78 D7FE           00054         BRA     WRD             ;DATA RECIVE                    ;;                                      
+                                                    
+017E7A 9A9E           00055         BCF     PIR1,RCIF,0     ;RESET THE RX FLAG              ;;
+017E7C 50AE           00056         MOVF    RCREG,0,0       ;STORE THE RECIVE DATA INTO W   ;;
+017E7E 0012           00057         RETURN                                                  ;;
+                      00058 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00059 ;;;;;;;;;;;;;;;TRANSMIT FUNCTION;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+017E80                00060 TRANSMIT:                                                       ;;
+017E80 6EAD           00061         MOVWF   TXREG,0         ;LOAD THE TX DATA TO CONTROL REG;;
+017E82 989E           00062         BCF     PIR1,TXIF,0     ;RESET THE TX FLAG              ;;
+017E84                00063 WTD:                                                            ;;
+017E84 A89E           00064         BTFSS   PIR1,TXIF,0     ;CHECK DATA TRANSMISSION        ;;
+017E86 D7FE           00065         BRA     WTD             ;COMPLET                        ;;
+017E88 0012           00066         RETURN                  ;RETURN TO MAIN LOOP            ;;
+                      00067 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00068 ;;;;;FLASH WRITE & ERASE OPERATION CONTROL FUNCTION;;;;;;;;;;;;;;;
+                      00069 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+017E8A                00070 FLASH_OPERATION:                                                ;;
+017E8A 6EA6           00071         MOVWF   EECON1,0        ;SET THE REQUIRED OPERATION     ;;
+017E8C 0E55           00072         MOVLW   0x55            ;SET THE REQUIRED OPERATION     ;; 
+                      00073                                 ;SEQUENCY                       ;;
+017E8E 6EA7           00074         MOVWF   EECON2,0                                        ;;
+017E90 0EAA           00075         MOVLW   0xAA                                            ;;
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+017E92 6EA7           00076         MOVWF   EECON2,0                                        ;;
+017E94 82A6           00077         BSF     EECON1,WR,0     ;START THE OPERATION            ;;
+017E96 0000           00078         NOP                     ;WAIT                           ;;
+017E98 0000           00079         NOP                                                     ;;
+017E9A 94A6           00080         BCF     EECON1,WREN,0   ;DISABLE THE WRITE              ;;
+017E9C 0012           00081         RETURN                  ;RETURN FROM THE FUNCTION       ;;
+                      00082         
+                      00083 ;;;;;;;;;;;;;;;;;;;MAIN ROUTAIN;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;--------------------------------------
+                            -----------------
+                      00084 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;--------------------------------------
+                            -----------------
+017E9E                00085 MAIN:
+                      00086         
+017E9E 9EF2           00087         BCF     INTCON,GIE,0    ;DISABLE THE INTERRUPT          ;;
+                      00088 ;;;;;;;;;CUSTOMIZING THE BOOTLOADER FOR THE REMOTE CONTROLLER;;;;;;;;;;;;;;;;;
+017EA0 0EFF           00089         MOVLW   0xFF            ;;
+017EA2 6E92           00090         MOVWF   TRISA,0         ;;
+017EA4 0EEF           00091         MOVLW   0xEF            ;;
+017EA6 6E93           00092         MOVWF   TRISB,0         ;;
+017EA8 0EFF           00093         MOVLW   0xFF            ;;
+017EAA 6E94           00094         MOVWF   TRISC,0         ;;
+017EAC 0EFF           00095         MOVLW   0xFF            ;;
+017EAE 6E95           00096         MOVWF   TRISD,0         ;;
+                      00097 ;;;;;;;;;SERIAL COMMUNICATION SETUP;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+017EB0 0E40           00098         MOVLW   0x40            ;SET BAUT RATE                  ;;
+017EB2 6EAF           00099         MOVWF   SPBRG,0                                         ;;
+017EB4 0E24           00100         MOVLW   0x24            ;ENABLE THE TX &                ;;
+017EB6 6EAC           00101         MOVWF   TXSTA,0         ;HIGH SPEED                     ;;
+017EB8 0E90           00102         MOVLW   0x90            ;ENABLE THE CONTINUOUS RECIVE   ;;
+017EBA 6EAB           00103         MOVWF   RCSTA,0         ;& SERIAL PORT ENABLE           ;;
+017EBC 6AB8           00104     CLRF        BAUDCON,0
+017EBE 6AAE           00105         CLRF    RCREG,0         ;RESET THE RECIVER REG          ;;
+                      00106 ;;;;;;;;;;;;;;;SET UP THE PORTS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+017EC0 6A96           00107         CLRF    TRISE,0
+017EC2 6ABA           00108         CLRF    ECCP1CON,0
+                      00109 ;;REMOVED FOR THE REMOTE CONTROLLER;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00110 ;       MOVLW   0x20            ;SET THE PORTB0 AS              ;;
+                      00111 ;       MOVWF   TRISC,0         ;INPUT AND OTHER OUTPUT         ;;
+                      00112 ;       CLRF    PORTC,0         ;RESET THE PORTB                ;;
+                      00113 ;       CLRF    LATC,0          ;RESET THE LATCH OF THE PORTB   ;;
+                      00114 ;;ADDED PART FOR THE REMOTE CONTROLLER;;;;;;;;;;;;;;;;;;
+017EC4 9094           00115         BCF TRISC,0
+017EC6 908B           00116         BCF LATC,0
+                      00117 ;;      BCF PORTC,0
+017EC8 9284           00118         BCF PORTE,1                     ;BACK LIGHT OFF
+                      00119 
+                      00120 ;       nop                                     ;devinda
+                      00121 ;       BSF     PORTD,4,0       ;devinda
+                      00122 ;;;;;;;;;;;;CHECK THERE IS PROGRAM MODE;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00123 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00124 ;       BTFSS   PORTD,5,0       ;CHECK IT A PROGRAM MODE        ;;
+                      00125 ;       BRA     FTERMINIT       ;GOTO SUDEN EXIT_0x7FC          ;;
+                      00126 ;-----------------INITIALIZE THE TIMER OF boot mode timeout-----------------
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+017ECA                00127 TIMER_INIT:
+017ECA 0E80           00128         movlw   0x80                    ;
+017ECC 6E19           00129         movwf   DlyCnt1                 ;
+017ECE 0E80           00130         movlw   0x80                    ;
+017ED0 6E20           00131         movwf   DlyCnt2                 ;
+017ED2 0E65           00132         movlw   0x65                    ;
+017ED4 6E22           00133         movwf   DlyCnt3                 ;; 
+                      00134 
+                      00135 ;       BSF     PORTD,4,0       ; indicator that the pic is working
+017ED6                00136 DELAY_LOOP1:
+017ED6 BA9E           00137         BTFSC   PIR1,RCIF,0     ;CHECK ANY NEW                  ;(1)
+017ED8 EF7D F0BF      00138         GOTO    FIRST_CHAR_RECEICED                             ;(2)
+017EDC 2E19           00139         decfsz  DlyCnt1,1,0                                             ;(1) 
+017EDE EF6B F0BF      00140         GOTO DELAY_LOOP1                                                        ;(2)
+017EE2 0E80           00141         movlw   0x80                                                            ;(1)
+017EE4 6E19           00142         movwf   DlyCnt1                                                         ;(1)
+017EE6 2E20           00143         decfsz  DlyCnt2,1,0                                             ;(1) 
+017EE8 EF6B F0BF      00144         GOTO DELAY_LOOP1                                                        ;(2)
+017EEC 0E80           00145         movlw   0x80                                                            ;(1)
+017EEE 6E20           00146         movwf   DlyCnt2                                                         ;(1)
+017EF0 2E22           00147         decfsz  DlyCnt3,1,0                                             ;(1)
+017EF2 EF6B F0BF      00148         GOTO DELAY_LOOP1;                       ;;
+                      00149                                                                 ;;(((1+2+1+2)*128 + 1+1+1+2)*128 + 1+1+1
+                            )*255*200ns = 5.046 sec
+                      00150                                                                 ;;(((1+2+1+2)*128 + 1+1+1+2)*128 + 1+1+1
+                            )*101*200ns = 1.998 sec
+                      00151 
+017EF6 EFDC F0BF      00152         goto    FTERMINIT;                      ;;TIMEOUT HAS OCCURED ,SO EXIT BOOTLOAD MODE
+                      00153 
+017EFA                00154 FIRST_CHAR_RECEICED:
+017EFA 9A9E           00155         BCF     PIR1,RCIF,0     ;RESET THE RX FLAG              ;;
+017EFC 50AE           00156         MOVF    RCREG,0,0       ;STORE THE RECIVE DATA INTO W   ;;      
+017EFE 0A62           00157         XORLW   0x62            ;CHECK IS IT VALID START CHAR 'b'
+017F00 B4D8           00158         BTFSC   STATUS,Z,0                                      ;;
+017F02 EF85 F0BF      00159         goto    DELAY_LOOP2     ;                       start LOOKING FOR THE SECOND CHAR
+017F06 EF6B F0BF      00160         goto    DELAY_LOOP1     ;                       INCORRECT CHAR CAME; GO BACK TO THE TIMER
+                      00161 
+017F0A                00162 DELAY_LOOP2:
+017F0A BA9E           00163         BTFSC   PIR1,RCIF,0     ;CHECK ANY NEW                  ;; NOW THE TIME WILL B COUNTED FROM THE 
+                            STOPPED POINT 
+017F0C EF97 F0BF      00164         GOTO    SECOND_CHAR_RECEICED   ;
+017F10 2E19           00165         decfsz  DlyCnt1,1,0       ; 
+017F12 EF85 F0BF      00166         GOTO DELAY_LOOP2;
+017F16 0E80           00167         movlw   0x80                    ;
+017F18 6E19           00168         movwf   DlyCnt1                 ;
+017F1A 2E20           00169         decfsz  DlyCnt2,1,0       ; 
+017F1C EF85 F0BF      00170         GOTO DELAY_LOOP2;
+017F20 0E80           00171         movlw   0x80                    ;
+017F22 6E20           00172         movwf   DlyCnt2         ;
+017F24 2E22           00173         decfsz  DlyCnt3,1,0       ;
+017F26 EF85 F0BF      00174         GOTO DELAY_LOOP2;                       ;;255*255*255*200ns = 3.31 sec
+                      00175 
+017F2A EFDC F0BF      00176         goto    FTERMINIT;                      ;;TIMEOUT HAS OCCURED ,SO EXIT BOOTLOAD MODE
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00177 
+017F2E                00178 SECOND_CHAR_RECEICED:
+                      00179 ;;      MOVLW   0x61            ;test point ;;----------------------------------------------------------
+                            -----------------------
+                      00180 ;;      RCALL   TRANSMIT        ;;
+                      00181         
+                      00182         ;RCALL  RECIVE          ;RECIVE THE LINE TYPE DATA
+017F2E 9A9E           00183         BCF     PIR1,RCIF,0     ;RESET THE RX FLAG              ;;
+017F30 50AE           00184         MOVF    RCREG,0,0       ;STORE THE RECIVE DATA INTO W   ;;      
+017F32 0A6C           00185         XORLW   0x6c            ;CHECK IS IT VALID START CHAR 'l'
+017F34 B4D8           00186         BTFSC   STATUS,Z,0                                      ;;
+017F36 EF9F F0BF      00187         goto    START_BOOT      ;       CORRECT SECOND CHAR RECEIVED;start boot loader
+017F3A EF85 F0BF      00188         goto    DELAY_LOOP2     ;   INCORRECT SECOND CHAR; GO BACK TO THE TIMER
+                      00189 
+                      00190 ;------------------------------------------------------------
+                      00191 ;;;;;;;;;;;;;;;;;;;;;;RECIVE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00192 ;;;;;;;;;;;;;;INDICATER OF PROGRAM MODE;;;;;;;;;;;;;;;;;;;;;;;;;;;
+017F3E                00193 START_BOOT
+                      00194 ;       BSF     PORTD,4,0       ;PROGRAM MODE INDICATER         ;;
+                      00195 ;       BSF     PORTC,1,0       ;PROGRAM MODE INDICATER         ;;
+                      00196 ;;;;;;;;;;;;SEND THE XON DATA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+017F3E 0E11           00197         MOVLW   0x11            ;STORE THE XON CHAR IN THE W REG;;              
+017F40 DF9F           00198         RCALL   TRANSMIT        ;TRANSMITE THAT DATA            ;;
+                      00199 ;;;;;;;;;;;;;;;;;;RECIVE THE DATA FOR FASH WRITE;;;;;;;;;;;;;;;;;;
+017F42                00200 RECICE_DATA:    
+                      00201 ;;;;;;;;;;;;;CHECK whether IT IS A INSTRCTION WRITE;;;;;;;;;;;;;;;;;;;;;;;
+017F42 DF99           00202         RCALL   RECIVE          ;RECIVE THE LINE TYPE DATA      ;;
+017F44 0A3A           00203         XORLW   0x3A            ;CHECK IT IS ALINE START CHAR(0x3A is :)        ;;
+017F46 A4D8           00204         BTFSS   STATUS,Z,0                                      ;;
+017F48 D036           00205         BRA     TERMINIT        ;GOTO TERMINATE_0x7FA           ;;
+                      00206 ;->CHECK THAT RECIVE THE DATA FOR PROGRAMMING THE FLASH         ;;
+                      00207 ;->OR END OF THE PROGRAMMING                                    ;;
+                      00208 ;;;;;;;;;;;;;;;;;;;LOAD THE BYTE COUNT;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00209 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+017F4A DF95           00210         RCALL   RECIVE          ;RECIVE THE COUNT DATA          ;;
+017F4C 6E00           00211         MOVWF   0x00,0          ;STORE THE COUNT FOR RECIVING   ;;
+017F4E 6E01           00212         MOVWF   0x01,0          ;STORE THE COUNT FOR WRITING    ;;
+017F50 6E02           00213         MOVWF   0x02,0          ;STORE IT FOR CHECK SUM         ;;
+                      00214 ;->HERE USING THE ACCESS MEMORY AREA                            ;;
+                      00215 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00216 ;;;;;;;;;;;;;LOAD THE INITAL ADDRESS OF THE FLASH WRITE;;;;;;;;;;;
+017F52 DF91           00217         RCALL   RECIVE          ;RECIVE THE FALASH WRITE        ;; 
+                      00218                                 ;ADDRESS MSB                    ;;
+017F54 2602           00219         ADDWF   0x02,1,0        ;ADD the data byte to 0x02 address to calculate CHECK SUM               
+                            ;;
+017F56 6EF8           00220         MOVWF   TBLPTRU,0       ;LOAD INTO THE FLASH ADDRESS    ;;
+                      00221                                 ;CONTROL REG                    ;;
+017F58 DF8E           00222         RCALL   RECIVE          ;RECIVE THE FALASH WRITE        ;; 
+                      00223                                 ;ADDRESS                        ;;
+017F5A 2602           00224         ADDWF   0x02,1,0        ;ADD FOR CHECK SUM              ;;
+017F5C 6EF7           00225         MOVWF   TBLPTRH,0       ;LOAD INTO THE FLASH ADDRESS    ;;
+                      00226                                 ;CONTROL REG                    ;;
+017F5E DF8B           00227         RCALL   RECIVE          ;RECIVE THE FALASH WRITE        ;; 
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00228                                 ;ADDRESS LSB                    ;;
+017F60 2602           00229         ADDWF   0x02,1,0        ;ADD FOR CHECK SUM              ;;
+017F62 6EF6           00230         MOVWF   TBLPTRL,0       ;LOAD INTO THE FLASH ADDRESS    ;;
+                      00231                                 ;CONTROL REG                    ;; 
+                      00232 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00233 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00234 
+                      00235 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00236 ;;;;;;;;LOAD THE DATA INTO THE DATA MEMORY;;;;;;;;;;;;;;;;;;;;;;;;
+                      00237 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+017F64 EE01 F000      00238         LFSR    FSR0,0x100      ;THE DATA START POINT           ;;
+017F68                00239 DATA_RX:                                                        ;;
+017F68 DF86           00240         RCALL   RECIVE          ;RECIVE THE DATA                ;;
+017F6A 2602           00241         ADDWF   0x02,1,0        ;ADD FOR CHECK SUM              ;;
+017F6C 6EEE           00242         MOVWF   POSTINC0        ;STORE THE RECIVE DATA TO TEMP  ;;
+                      00243                                 ;MEMORY & INCREASED TO NEXT     ;;
+017F6E 2E00           00244         DECFSZ  0x00,1,0        ;COUNTDOWN UPTO END             ;;
+017F70 D7FB           00245         BRA     DATA_RX         ;GOTO DATA RECIVE               ;;
+017F72 DF81           00246         RCALL   RECIVE          ;RECIVE THE CHECK SUM           ;;
+017F74 6C02           00247         NEGF    0x02,0          ;TAKE 2'S COMP                  ;;
+017F76 6202           00248         CPFSEQ  0x02,0          ;CHECK WITH CALCULATED CHECK SUM;;              
+017F78 D001           00249         BRA     NACK            ;GOTO NACK INDICATION           ;;
+017F7A D003           00250         BRA     FLASH_WRITE             ;GOTO FLASH WRITE               ;;
+017F7C                00251 NACK:                                                           ;;                                      
+                                            
+                      00252         ;RCALL  RECIVE          ;NOT IMPORTANT                  ;;                                      
+                                                            
+017F7C 0EFF           00253         MOVLW   0xFF            ;SEND NACK                      ;;
+017F7E DF80           00254         RCALL   TRANSMIT                                        ;;
+017F80 D7E0           00255         BRA     RECICE_DATA     ;GOTO DATA RECIVE_0x7B9         ;;
+                      00256 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00257 ;;;;;;;;;;;;;;;;;;;;FLASH WRITE OPERATION;;;;;;;;;;;;;;;;;;;;;;;;;0
+                      00258 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+017F82                00259 FLASH_WRITE:
+                      00260         ;RCALL  RECIVE          ;NOT IMPORTANT                  ;;      
+017F82 EE01 F000      00261         LFSR    FSR0,0x100      ;THE DATA START POINT           ;;
+017F86 BAF8           00262         BTFSC   TBLPTRU,5,0     ;CHECK IT IS CFG WRITE          ;;
+017F88 D00B           00263         BRA     CFG_WRITE       ;GOTO CFG WRITE                 ;;
+                      00264 
+                      00265 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00266 ;;;;;;;;;;;;;;;;;;ERASE THE FLASH MEMORY;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00267 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+017F8A                00268 ERASE:                                                          ;;
+                      00269                         
+017F8A 0E94           00270         MOVLW   0x94            ;GOTO NORMAL PROGRAM MEMORY &   ;;
+                      00271                                 ;DO THE ERASE THE MEMORY        ;;  
+017F8C DF7E           00272         RCALL   FLASH_OPERATION ;DO THE OPERATION ON FLASH      ;;
+017F8E 000A           00273         TBLRD*-                 ;DUMMY READ     ;;
+                      00274 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00275 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00276 
+017F90                00277 FLASH_LOAD_DATA:                                                        ;;
+017F90 50EE           00278         MOVF    POSTINC0,0,0    ;LOAD THE DATA TO THE FLASH     ;;
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00279                                 ;CONTROL REG                    ;;
+017F92 6EF5           00280         MOVWF   TABLAT,0        ;LOAD THE DATA TO FLASH REG     ;;              
+017F94 000F           00281         TBLWT+*                         ;INC THE TABLE POINTER AND DO   ;;
+                      00282                                 ;THE WRITE                      ;;      
+017F96 2E01           00283         DECFSZ  0x01,1,0        ;COUNTDOWN FLASH LATH FULL      ;;
+017F98 D7FB           00284         BRA     FLASH_LOAD_DATA ;GOTO DATA LOAD TO FLASH REG    ;;
+017F9A 0E84           00285         MOVLW   0x84            ;SET UP FOR DATA WRITE          ;;
+017F9C DF76           00286         RCALL   FLASH_OPERATION ;CALL FLASH WRITE OPERATIN      ;;
+017F9E D008           00287         BRA     ACK             ;GOTO ACK                       ;;
+                      00288 
+                      00289 
+                      00290 
+017FA0                00291 CFG_WRITE:                              
+017FA0 50EE           00292         MOVF    POSTINC0,0,0    ;LOAD THE DATA TO THE FLASH     ;;
+                      00293                                 ;CONTROL REG                    ;;
+017FA2 6EF5           00294         MOVWF   TABLAT,0        ;LOAD THE DATA TO FLASH REG     ;;                              
+017FA4 000C           00295         TBLWT*                  ;THE TABLE POINTER AND DO       ;;
+                      00296                                 ;THE WRITE                      ;;
+                      00297 
+017FA6 0EC4           00298         MOVLW   0xC4            ;SET UP FOR CFG WRITE           ;;
+017FA8 DF70           00299         RCALL   FLASH_OPERATION ;CALL FLASH WRITE OPERATIN      ;;
+017FAA 2E01           00300         DECFSZ  0x01,1,0        ;COUNTDOWN FLASH LATH FULL      ;;
+017FAC D7F9           00301         BRA     CFG_WRITE       ;GOTO CFG WRITE                 ;;
+017FAE 9CA6           00302         BCF     EECON1,CFGS,0   ;POINT TO THE PROGRAM MEMORY    ;;
+                      00303 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00304 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00305 
+                      00306 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00307 ;;;;;;;;;;;;;;;SEND THE ACK & GET THE DATA;;;;;;;;;;;;;;;;;;;;;;;;
+                      00308 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+017FB0                00309 ACK:                                                            ;;
+017FB0 0E06           00310         MOVLW   0x06            ;SEND ACK                       ;;
+017FB2 DF66           00311         RCALL   TRANSMIT                                        ;;
+017FB4 D7C6           00312         BRA     RECICE_DATA     ;GOTO DATA GET                  ;;
+                      00313 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00314 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00315 
+                      00316 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00317 ;;;;;;;;;;TERMINATE THE OPERATION AND NORMAL OPERATION;;;;;;;;;;;;
+                      00318 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+017FB6                00319 TERMINIT;                                                       ;;
+                      00320 ;       MOVLW   0x13            ;SEND XOFF                      ;; temp comment by devinda
+                      00321 ;       RCALL   TRANSMIT                                        ;;
+017FB6 00FF           00322         RESET                   ;RESET THE PROCESSOR            ;;
+017FB8                00323 FTERMINIT:      
+                      00324 ;       MOVLW   0x33            ;Leaving the bootloader added by devinda
+                      00325 ;       GOTO    TRANSMIT        ;; temp comment by devinda
+017FB8 0000           00326         NOP;
+017FBA 0000           00327         NOP;
+017FBC 0000           00328         NOP;
+017FBE 0000           00329         NOP;
+017FC0 EF4F F0BF      00330         GOTO    MAIN            ;GOTO THE MAIN                  ;;
+                      00331         
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00332 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00333 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00334 ;->THIS IS THE AREA TO POINT THE MAIN FUNCTION OF THE NORMAL    ;;
+                      00335 ;  PROGRAM                                                      ;;
+                      00336 ;->THIS THREE INSTRUCTION ARE CHANGE WHEN THE NORMAL PROGRAMMING;;
+                      00337 ;  LOADING                                                      ;;
+                      00338 ;->AFTER THE LOADING THE NORMAL PROGRAMMING IT CHANGE TO POINT  ;;
+                      00339 ;  THAT PROGRAMMING MAIN POINT                                  ;;
+                      00340 ;->THERE ISN'T ANY NORMAL PROGRAMMING LOADED THIS AREA POINTED  ;;
+                      00341 ;  TO THE BOOTLOADING MAIN POINT                                ;;
+                      00342 ;->CAREFUL TO CHANGE THIS POINT BECAUSE IT DAMAGE THE LOADER    ;;
+                      00343 ;  ALSO                                                         ;;   
+                      00344 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00345 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00346 
+                      00347         END
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE  9
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+A                                 00000000
+ABAT                              00000004
+ABDEN                             00000000
+ABDOVF                            00000007
+ACCESS                            00000000
+ACK                               00017FB0
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ACQT0                             00000003
+ACQT1                             00000004
+ACQT2                             00000005
+ADCON0                            00000FC2
+ADCON1                            00000FC1
+ADCON2                            00000FC0
+ADCS0                             00000000
+ADCS1                             00000001
+ADCS2                             00000002
+ADDEN                             00000003
+ADEN                              00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADIP                              00000006
+ADON                              00000000
+ADRES                             00000FC3
+ADRESH                            00000FC4
+ADRESL                            00000FC3
+AN0                               00000000
+AN1                               00000001
+AN10                              00000000
+AN2                               00000002
+AN3                               00000003
+AN4                               00000005
+AN5                               00000000
+AN6                               00000001
+AN7                               00000002
+AN8                               00000001
+AN9                               00000004
+B0CON                             00000E20
+B0D0                              00000E26
+B0D00                             00000000
+B0D01                             00000001
+B0D02                             00000002
+B0D03                             00000003
+B0D04                             00000004
+B0D05                             00000005
+B0D06                             00000006
+B0D07                             00000007
+B0D1                              00000E27
+B0D10                             00000000
+B0D11                             00000001
+B0D12                             00000002
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 10
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+B0D13                             00000003
+B0D14                             00000004
+B0D15                             00000005
+B0D16                             00000006
+B0D17                             00000007
+B0D2                              00000E28
+B0D20                             00000000
+B0D21                             00000001
+B0D22                             00000002
+B0D23                             00000003
+B0D24                             00000004
+B0D25                             00000005
+B0D26                             00000006
+B0D27                             00000007
+B0D3                              00000E29
+B0D30                             00000000
+B0D31                             00000001
+B0D32                             00000002
+B0D33                             00000003
+B0D34                             00000004
+B0D35                             00000005
+B0D36                             00000006
+B0D37                             00000007
+B0D4                              00000E2A
+B0D40                             00000000
+B0D41                             00000001
+B0D42                             00000002
+B0D43                             00000003
+B0D44                             00000004
+B0D45                             00000005
+B0D46                             00000006
+B0D47                             00000007
+B0D5                              00000E2B
+B0D50                             00000000
+B0D51                             00000001
+B0D52                             00000002
+B0D53                             00000003
+B0D54                             00000004
+B0D55                             00000005
+B0D56                             00000006
+B0D57                             00000007
+B0D6                              00000E2C
+B0D60                             00000000
+B0D61                             00000001
+B0D62                             00000002
+B0D63                             00000003
+B0D64                             00000004
+B0D65                             00000005
+B0D66                             00000006
+B0D67                             00000007
+B0D7                              00000E2D
+B0D70                             00000000
+B0D71                             00000001
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 11
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+B0D72                             00000002
+B0D73                             00000003
+B0D74                             00000004
+B0D75                             00000005
+B0D76                             00000006
+B0D77                             00000007
+B0DLC                             00000E25
+B0EIDH                            00000E23
+B0EIDL                            00000E24
+B0IE                              00000002
+B0SIDH                            00000E21
+B0SIDL                            00000E22
+B0TXEN                            00000002
+B1CON                             00000E30
+B1D0                              00000E36
+B1D00                             00000000
+B1D01                             00000001
+B1D02                             00000002
+B1D03                             00000003
+B1D04                             00000004
+B1D05                             00000005
+B1D06                             00000006
+B1D07                             00000007
+B1D1                              00000E37
+B1D10                             00000000
+B1D11                             00000001
+B1D12                             00000002
+B1D13                             00000003
+B1D14                             00000004
+B1D15                             00000005
+B1D16                             00000006
+B1D17                             00000007
+B1D2                              00000E38
+B1D20                             00000000
+B1D21                             00000001
+B1D22                             00000002
+B1D23                             00000003
+B1D24                             00000004
+B1D25                             00000005
+B1D26                             00000006
+B1D27                             00000007
+B1D3                              00000E39
+B1D30                             00000000
+B1D31                             00000001
+B1D32                             00000002
+B1D33                             00000003
+B1D34                             00000004
+B1D35                             00000005
+B1D36                             00000006
+B1D37                             00000007
+B1D4                              00000E3A
+B1D40                             00000000
+B1D41                             00000001
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 12
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+B1D42                             00000002
+B1D43                             00000003
+B1D44                             00000004
+B1D45                             00000005
+B1D46                             00000006
+B1D47                             00000007
+B1D5                              00000E3B
+B1D50                             00000000
+B1D51                             00000001
+B1D52                             00000002
+B1D53                             00000003
+B1D54                             00000004
+B1D55                             00000005
+B1D56                             00000006
+B1D57                             00000007
+B1D6                              00000E3C
+B1D60                             00000000
+B1D61                             00000001
+B1D62                             00000002
+B1D63                             00000003
+B1D64                             00000004
+B1D65                             00000005
+B1D66                             00000006
+B1D67                             00000007
+B1D7                              00000E3D
+B1D70                             00000000
+B1D71                             00000001
+B1D72                             00000002
+B1D73                             00000003
+B1D74                             00000004
+B1D75                             00000005
+B1D76                             00000006
+B1D77                             00000007
+B1DLC                             00000E35
+B1EIDH                            00000E33
+B1EIDL                            00000E34
+B1IE                              00000003
+B1SIDH                            00000E31
+B1SIDL                            00000E32
+B1TXEN                            00000003
+B2CON                             00000E40
+B2D0                              00000E46
+B2D00                             00000000
+B2D01                             00000001
+B2D02                             00000002
+B2D03                             00000003
+B2D04                             00000004
+B2D05                             00000005
+B2D06                             00000006
+B2D07                             00000007
+B2D1                              00000E47
+B2D10                             00000000
+B2D11                             00000001
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 13
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+B2D12                             00000002
+B2D13                             00000003
+B2D14                             00000004
+B2D15                             00000005
+B2D16                             00000006
+B2D17                             00000007
+B2D2                              00000E48
+B2D20                             00000000
+B2D21                             00000001
+B2D22                             00000002
+B2D23                             00000003
+B2D24                             00000004
+B2D25                             00000005
+B2D26                             00000006
+B2D27                             00000007
+B2D3                              00000E49
+B2D30                             00000000
+B2D31                             00000001
+B2D32                             00000002
+B2D33                             00000003
+B2D34                             00000004
+B2D35                             00000005
+B2D36                             00000006
+B2D37                             00000007
+B2D4                              00000E4A
+B2D40                             00000000
+B2D41                             00000001
+B2D42                             00000002
+B2D43                             00000003
+B2D44                             00000004
+B2D45                             00000005
+B2D46                             00000006
+B2D47                             00000007
+B2D5                              00000E4B
+B2D50                             00000000
+B2D51                             00000001
+B2D52                             00000002
+B2D53                             00000003
+B2D54                             00000004
+B2D55                             00000005
+B2D56                             00000006
+B2D57                             00000007
+B2D6                              00000E4C
+B2D60                             00000000
+B2D61                             00000001
+B2D62                             00000002
+B2D63                             00000003
+B2D64                             00000004
+B2D65                             00000005
+B2D66                             00000006
+B2D67                             00000007
+B2D7                              00000E4D
+B2D70                             00000000
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 14
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+B2D71                             00000001
+B2D72                             00000002
+B2D73                             00000003
+B2D74                             00000004
+B2D75                             00000005
+B2D76                             00000006
+B2D77                             00000007
+B2DLC                             00000E45
+B2EIDH                            00000E43
+B2EIDL                            00000E44
+B2IE                              00000004
+B2SIDH                            00000E41
+B2SIDL                            00000E42
+B2TXEN                            00000004
+B3CON                             00000E50
+B3D0                              00000E56
+B3D00                             00000000
+B3D01                             00000001
+B3D02                             00000002
+B3D03                             00000003
+B3D04                             00000004
+B3D05                             00000005
+B3D06                             00000006
+B3D07                             00000007
+B3D1                              00000E57
+B3D10                             00000000
+B3D11                             00000001
+B3D12                             00000002
+B3D13                             00000003
+B3D14                             00000004
+B3D15                             00000005
+B3D16                             00000006
+B3D17                             00000007
+B3D2                              00000E58
+B3D20                             00000000
+B3D21                             00000001
+B3D22                             00000002
+B3D23                             00000003
+B3D24                             00000004
+B3D25                             00000005
+B3D26                             00000006
+B3D27                             00000007
+B3D3                              00000E59
+B3D30                             00000000
+B3D31                             00000001
+B3D32                             00000002
+B3D33                             00000003
+B3D34                             00000004
+B3D35                             00000005
+B3D36                             00000006
+B3D37                             00000007
+B3D4                              00000E5A
+B3D40                             00000000
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 15
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+B3D41                             00000001
+B3D42                             00000002
+B3D43                             00000003
+B3D44                             00000004
+B3D45                             00000005
+B3D46                             00000006
+B3D47                             00000007
+B3D5                              00000E5B
+B3D50                             00000000
+B3D51                             00000001
+B3D52                             00000002
+B3D53                             00000003
+B3D54                             00000004
+B3D55                             00000005
+B3D56                             00000006
+B3D57                             00000007
+B3D6                              00000E5C
+B3D60                             00000000
+B3D61                             00000001
+B3D62                             00000002
+B3D63                             00000003
+B3D64                             00000004
+B3D65                             00000005
+B3D66                             00000006
+B3D67                             00000007
+B3D7                              00000E5D
+B3D70                             00000000
+B3D71                             00000001
+B3D72                             00000002
+B3D73                             00000003
+B3D74                             00000004
+B3D75                             00000005
+B3D76                             00000006
+B3D77                             00000007
+B3DLC                             00000E55
+B3EIDH                            00000E53
+B3EIDL                            00000E54
+B3IE                              00000005
+B3SIDH                            00000E51
+B3SIDL                            00000E52
+B3TXEN                            00000005
+B46D77                            00000007
+B4CON                             00000E60
+B4D0                              00000E66
+B4D00                             00000000
+B4D01                             00000001
+B4D02                             00000002
+B4D03                             00000003
+B4D04                             00000004
+B4D05                             00000005
+B4D06                             00000006
+B4D07                             00000007
+B4D1                              00000E67
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 16
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+B4D10                             00000000
+B4D11                             00000001
+B4D12                             00000002
+B4D13                             00000003
+B4D14                             00000004
+B4D15                             00000005
+B4D16                             00000006
+B4D17                             00000007
+B4D2                              00000E68
+B4D20                             00000000
+B4D21                             00000001
+B4D22                             00000002
+B4D23                             00000003
+B4D24                             00000004
+B4D25                             00000005
+B4D26                             00000006
+B4D27                             00000007
+B4D3                              00000E69
+B4D30                             00000000
+B4D31                             00000001
+B4D32                             00000002
+B4D33                             00000003
+B4D34                             00000004
+B4D35                             00000005
+B4D36                             00000006
+B4D37                             00000007
+B4D4                              00000E6A
+B4D40                             00000000
+B4D41                             00000001
+B4D42                             00000002
+B4D43                             00000003
+B4D44                             00000004
+B4D45                             00000005
+B4D46                             00000006
+B4D47                             00000007
+B4D5                              00000E6B
+B4D50                             00000000
+B4D51                             00000001
+B4D52                             00000002
+B4D53                             00000003
+B4D54                             00000004
+B4D55                             00000005
+B4D56                             00000006
+B4D57                             00000007
+B4D6                              00000E6C
+B4D60                             00000000
+B4D61                             00000001
+B4D62                             00000002
+B4D63                             00000003
+B4D64                             00000004
+B4D65                             00000005
+B4D66                             00000006
+B4D67                             00000007
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 17
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+B4D7                              00000E6D
+B4D70                             00000000
+B4D71                             00000001
+B4D72                             00000002
+B4D73                             00000003
+B4D74                             00000004
+B4D75                             00000005
+B4D76                             00000006
+B4D77                             00000007
+B4DLC                             00000E65
+B4EIDH                            00000E63
+B4EIDL                            00000E64
+B4IE                              00000006
+B4SIDH                            00000E61
+B4SIDL                            00000E62
+B4TXEN                            00000006
+B57D07                            00000007
+B57D23                            00000003
+B5CON                             00000E70
+B5D0                              00000E76
+B5D00                             00000000
+B5D01                             00000001
+B5D02                             00000002
+B5D03                             00000003
+B5D04                             00000004
+B5D05                             00000005
+B5D06                             00000006
+B5D07                             00000007
+B5D1                              00000E77
+B5D10                             00000000
+B5D11                             00000001
+B5D12                             00000002
+B5D13                             00000003
+B5D14                             00000004
+B5D15                             00000005
+B5D16                             00000006
+B5D17                             00000007
+B5D2                              00000E78
+B5D20                             00000000
+B5D21                             00000001
+B5D22                             00000002
+B5D23                             00000003
+B5D24                             00000004
+B5D25                             00000005
+B5D26                             00000006
+B5D27                             00000007
+B5D3                              00000E79
+B5D30                             00000000
+B5D31                             00000001
+B5D32                             00000002
+B5D33                             00000003
+B5D34                             00000004
+B5D35                             00000005
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 18
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+B5D36                             00000006
+B5D37                             00000007
+B5D4                              00000E7A
+B5D40                             00000000
+B5D41                             00000001
+B5D42                             00000002
+B5D43                             00000003
+B5D44                             00000004
+B5D45                             00000005
+B5D46                             00000006
+B5D47                             00000007
+B5D5                              00000E7B
+B5D50                             00000000
+B5D51                             00000001
+B5D52                             00000002
+B5D53                             00000003
+B5D54                             00000004
+B5D55                             00000005
+B5D56                             00000006
+B5D57                             00000007
+B5D6                              00000E7C
+B5D60                             00000000
+B5D61                             00000001
+B5D62                             00000002
+B5D63                             00000003
+B5D64                             00000004
+B5D65                             00000005
+B5D66                             00000006
+B5D67                             00000007
+B5D7                              00000E7D
+B5D70                             00000000
+B5D71                             00000001
+B5D72                             00000002
+B5D73                             00000003
+B5D74                             00000004
+B5D75                             00000005
+B5D76                             00000006
+B5D77                             00000007
+B5DLC                             00000E75
+B5EIDH                            00000E73
+B5EIDL                            00000E74
+B5IE                              00000007
+B5SIDH                            00000E71
+B5SIDL                            00000E72
+B5TXEN                            00000007
+BANKED                            00000001
+BAUDCON                           00000FB8
+BCLIE                             00000003
+BCLIF                             00000003
+BCLIP                             00000003
+BF                                00000000
+BGST                              00000005
+BIE0                              00000DFA
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 19
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+BOR                               00000000
+BRG16                             00000003
+BRGCON1                           00000F70
+BRGCON2                           00000F71
+BRGCON3                           00000F72
+BRGH                              00000002
+BRP0                              00000000
+BRP1                              00000001
+BRP2                              00000002
+BRP3                              00000003
+BRP4                              00000004
+BRP5                              00000005
+BSEL0                             00000DF8
+BSR                               00000FE0
+C                                 00000000
+C1INA                             00000001
+C1INB                             00000000
+C1INV                             00000004
+C1OUT                             00000006
+C2INA                             00000003
+C2INB                             00000002
+C2INV                             00000005
+C2OUT                             00000007
+CANCAP                            00000004
+CANCON                            00000F6F
+CANCON_RO0                        00000F5F
+CANCON_RO1                        00000F4F
+CANCON_RO2                        00000F3F
+CANCON_RO3                        00000F2F
+CANCON_RO4                        00000E7F
+CANCON_RO5                        00000E6F
+CANCON_RO6                        00000E5F
+CANCON_RO7                        00000E4F
+CANCON_RO8                        00000E3F
+CANCON_RO9                        00000E2F
+CANRX                             00000003
+CANSTAT                           00000F6E
+CANSTAT_RO0                       00000F5E
+CANSTAT_RO1                       00000F4E
+CANSTAT_RO2                       00000F3E
+CANSTAT_RO3                       00000F2E
+CANSTAT_RO4                       00000E7E
+CANSTAT_RO5                       00000E6E
+CANSTAT_RO6                       00000E5E
+CANSTAT_RO7                       00000E4E
+CANSTAT_RO8                       00000E3E
+CANSTAT_RO9                       00000E2E
+CANTX                             00000002
+CCP1                              00000002
+CCP1CON                           00000FBD
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1IP                            00000002
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 20
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCPR1                             00000FBE
+CCPR1H                            00000FBF
+CCPR1L                            00000FBE
+CFGS                              00000006
+CFG_WRITE                         00017FA0
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+CIOCON                            00000F73
+CIS                               00000003
+CK                                00000006
+CKE                               00000006
+CKP                               00000004
+CLKI                              00000007
+CLKO                              00000006
+CM0                               00000000
+CM1                               00000001
+CM2                               00000002
+CMCON                             00000FB4
+CMIE                              00000006
+CMIF                              00000006
+CMIP                              00000006
+COMSTAT                           00000F74
+CREN                              00000004
+CS                                00000002
+CSRC                              00000007
+CVR0                              00000000
+CVR1                              00000001
+CVR2                              00000002
+CVR3                              00000003
+CVRCON                            00000FB5
+CVREF_CVRCON                      00000004
+CVREF_PORTA                       00000000
+CVREN                             00000007
+CVROE                             00000006
+CVRR                              00000005
+CVRSS                             00000004
+CharValid                         00000021
+D                                 00000005
+DATA_ADDRESS                      00000005
+DATA_RX                           00017F68
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DDRA                              TRISA
+DDRB                              TRISB
+DDRC                              TRISC
+DDRD                              TRISD
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 21
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+DDRE                              TRISE
+DELAY_LOOP1                       00017ED6
+DELAY_LOOP2                       00017F0A
+DFLC0                             00000000
+DFLC1                             00000001
+DFLC2                             00000002
+DFLC3                             00000003
+DFLC4                             00000004
+DLC0                              00000000
+DLC1                              00000001
+DLC2                              00000002
+DLC3                              00000003
+DONE                              00000001
+D_A                               00000005
+DlyCnt1                           00000019
+DlyCnt2                           00000020
+DlyCnt3                           00000022
+ECANCON                           00000F77
+ECCP1                             00000004
+ECCP1AS                           00000FB6
+ECCP1CON                          00000FBA
+ECCP1DEL                          00000FB7
+ECCP1IE                           00000000
+ECCP1IF                           00000000
+ECCP1IP                           00000000
+ECCP1M0                           00000000
+ECCP1M1                           00000001
+ECCP1M2                           00000002
+ECCP1M3                           00000003
+ECCPAS0                           00000004
+ECCPAS1                           00000005
+ECCPAS2                           00000006
+ECCPASE                           00000007
+ECCPR1                            00000FBB
+ECCPR1H                           00000FBC
+ECCPR1L                           00000FBB
+EDC1B0                            00000004
+EDC1B1                            00000005
+EEADR                             00000FA9
+EEADRH                            00000FAA
+EECON1                            00000FA6
+EECON2                            00000FA7
+EEDATA                            00000FA8
+EEIE                              00000004
+EEIF                              00000004
+EEIP                              00000004
+EEPGD                             00000007
+EICODE0                           00000000
+EICODE1                           00000001
+EICODE2                           00000002
+EICODE3                           00000003
+EICODE4                           00000004
+EID0                              00000000
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 22
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+EID1                              00000001
+EID10                             00000002
+EID11                             00000003
+EID12                             00000004
+EID13                             00000005
+EID14                             00000006
+EID15                             00000007
+EID16                             00000000
+EID17                             00000001
+EID2                              00000002
+EID3                              00000003
+EID4                              00000004
+EID5                              00000005
+EID6                              00000006
+EID7                              00000007
+EID8                              00000000
+EID9                              00000001
+ENDRHI                            00000005
+EPWM1M0                           00000006
+EPWM1M1                           00000007
+ERASE                             00017F8A
+ERRIE                             00000005
+ERRIF                             00000005
+ERRIP                             00000005
+EWARN                             00000000
+EWIN0                             00000000
+EWIN1                             00000001
+EWIN2                             00000002
+EWIN3                             00000003
+EWIN4                             00000004
+EXID                              00000003
+EXIDE                             00000003
+EXIDEN                            00000003
+F                                 00000005
+F0BP_0                            00000000
+F0BP_1                            00000001
+F0BP_2                            00000002
+F0BP_3                            00000003
+F10BP_0                           00000000
+F10BP_1                           00000001
+F10BP_2                           00000002
+F10BP_3                           00000003
+F11BP_0                           00000004
+F11BP_1                           00000005
+F11BP_2                           00000006
+F11BP_3                           00000007
+F12BP_0                           00000000
+F12BP_1                           00000001
+F12BP_2                           00000002
+F12BP_3                           00000003
+F13BP_0                           00000004
+F13BP_1                           00000005
+F13BP_2                           00000006
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 23
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+F13BP_3                           00000007
+F14BP_0                           00000000
+F14BP_1                           00000001
+F14BP_2                           00000002
+F14BP_3                           00000003
+F15BP_0                           00000004
+F15BP_1                           00000005
+F15BP_2                           00000006
+F15BP_3                           00000007
+F1BP_0                            00000004
+F1BP_1                            00000005
+F1BP_2                            00000006
+F1BP_3                            00000007
+F2BP_0                            00000000
+F2BP_1                            00000001
+F2BP_2                            00000002
+F2BP_3                            00000003
+F3BP_0                            00000004
+F3BP_1                            00000005
+F3BP_2                            00000006
+F3BP_3                            00000007
+F4BP_0                            00000000
+F4BP_1                            00000001
+F4BP_2                            00000002
+F4BP_3                            00000003
+F5BP_0                            00000004
+F5BP_1                            00000005
+F5BP_2                            00000006
+F5BP_3                            00000007
+F6BP_0                            00000000
+F6BP_1                            00000001
+F6BP_2                            00000002
+F6BP_3                            00000003
+F7BP_0                            00000004
+F7BP_1                            00000005
+F7BP_2                            00000006
+F7BP_3                            00000007
+F8BP_0                            00000000
+F8BP_1                            00000001
+F8BP_2                            00000002
+F8BP_3                            00000003
+F9BP_0                            00000004
+F9BP_1                            00000005
+F9BP_2                            00000006
+F9BP_3                            00000007
+FAST                              00000001
+FERR                              00000002
+FIFOEMPTY                         00000007
+FIFOMWIE                          00000000
+FIFOWM                            00000005
+FIFOWMIE                          00000000
+FIFOWMIF                          00000000
+FIFOWMIP                          00000000
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 24
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+FIL0_0                            00000000
+FIL0_1                            00000001
+FIL10_0                           00000004
+FIL10_1                           00000005
+FIL11_0                           00000006
+FIL11_1                           00000007
+FIL12_0                           00000000
+FIL12_1                           00000001
+FIL13_0                           00000002
+FIL13_1                           00000003
+FIL14_0                           00000004
+FIL14_1                           00000005
+FIL15_0                           00000006
+FIL15_1                           00000007
+FIL1_0                            00000002
+FIL1_1                            00000003
+FIL2_0                            00000004
+FIL2_1                            00000005
+FIL3_0                            00000006
+FIL3_1                            00000007
+FIL4_0                            00000000
+FIL4_1                            00000001
+FIL5_0                            00000002
+FIL5_1                            00000003
+FIL6_0                            00000004
+FIL6_1                            00000005
+FIL7_0                            00000006
+FIL7_1                            00000007
+FIL8_0                            00000000
+FIL8_1                            00000001
+FIL9_0                            00000002
+FIL9_1                            00000003
+FILHIT0                           00000000
+FILHIT1                           00000001
+FILHIT2                           00000002
+FILHIT3                           00000003
+FILHIT4                           00000004
+FIRST_CHAR_RECEICED               00017EFA
+FLASH_LOAD_DATA                   00017F90
+FLASH_OPERATION                   00017E8A
+FLASH_WRITE                       00017F82
+FLC0                              00000000
+FLC1                              00000001
+FLC2                              00000002
+FLC3                              00000003
+FLC4                              00000004
+FLT0                              00000000
+FP0                               00000000
+FP1                               00000001
+FP2                               00000002
+FP3                               00000003
+FREE                              00000004
+FSR0                              00000000
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 25
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1                              00000001
+FSR1H                             00000FE2
+FSR1L                             00000FE1
+FSR2                              00000002
+FSR2H                             00000FDA
+FSR2L                             00000FD9
+FTERMINIT                         00017FB8
+GCEN                              00000007
+GIE                               00000007
+GIEH                              00000007
+GIEL                              00000006
+GO                                00000001
+GO_DONE                           00000001
+HLVDCON                           00000FD2
+HLVDEN                            00000004
+HLVDIE                            00000002
+HLVDIF                            00000002
+HLVDIN                            00000005
+HLVDIP                            00000002
+HLVDL0                            00000000
+HLVDL1                            00000001
+HLVDL2                            00000002
+HLVDL3                            00000003
+I2C_DAT                           00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+IBF                               00000007
+IBOV                              00000005
+ICODE0                            00000000
+ICODE1                            00000001
+ICODE2                            00000002
+ICODE3                            00000003
+ICODE4                            00000004
+IDLEN                             00000007
+INDF0                             00000FEF
+INDF1                             00000FE7
+INDF2                             00000FDF
+INT0                              00000000
+INT0E                             00000004
+INT0F                             00000001
+INT0IE                            00000004
+INT0IF                            00000001
+INT1                              00000001
+INT1E                             00000003
+INT1F                             00000000
+INT1IE                            00000003
+INT1IF                            00000000
+INT1IP                            00000006
+INT1P                             00000006
+INT2                              00000002
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 26
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+INT2E                             00000004
+INT2F                             00000001
+INT2IE                            00000004
+INT2IF                            00000001
+INT2IP                            00000007
+INT2P                             00000007
+INTCON                            00000FF2
+INTCON2                           00000FF1
+INTCON3                           00000FF0
+INTEDG0                           00000006
+INTEDG1                           00000005
+INTEDG2                           00000004
+INTSCR                            00000007
+INTSRC                            00000007
+IOFS                              00000002
+IPEN                              00000007
+IPR1                              00000F9F
+IPR2                              00000FA2
+IPR3                              00000FA5
+IRCF0                             00000004
+IRCF1                             00000005
+IRCF2                             00000006
+IRVST                             00000005
+IRXIE                             00000007
+IRXIF                             00000007
+IRXIP                             00000007
+IVRST                             00000005
+JTOFF                             00000001
+KBI0                              00000004
+KBI1                              00000005
+KBI2                              00000006
+KBI3                              00000007
+LATA                              00000F89
+LATA0                             00000000
+LATA1                             00000001
+LATA2                             00000002
+LATA3                             00000003
+LATA4                             00000004
+LATA5                             00000005
+LATA6                             00000006
+LATA7                             00000007
+LATB                              00000F8A
+LATB0                             00000000
+LATB1                             00000001
+LATB2                             00000002
+LATB3                             00000003
+LATB4                             00000004
+LATB5                             00000005
+LATB6                             00000006
+LATB7                             00000007
+LATC                              00000F8B
+LATC0                             00000000
+LATC1                             00000001
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 27
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+LATC2                             00000002
+LATC3                             00000003
+LATC4                             00000004
+LATC5                             00000005
+LATC6                             00000006
+LATC7                             00000007
+LATD                              00000F8C
+LATD0                             00000000
+LATD1                             00000001
+LATD2                             00000002
+LATD3                             00000003
+LATD4                             00000004
+LATD5                             00000005
+LATD6                             00000006
+LATD7                             00000007
+LATE                              00000F8D
+LATE0                             00000000
+LATE1                             00000001
+LATE2                             00000002
+LVDCON                            00000FD2
+LVDEN                             00000004
+LVDIE                             00000002
+LVDIF                             00000002
+LVDIN                             00000005
+LVDIP                             00000002
+LVDL0                             00000000
+LVDL1                             00000001
+LVDL2                             00000002
+LVDL3                             00000003
+LVV0                              00000000
+LVV1                              00000001
+LVV2                              00000002
+LVV3                              00000003
+MAIN                              00017E9E
+MDSEL0                            00000006
+MDSEL1                            00000007
+MSEL0                             00000DF0
+MSEL1                             00000DF1
+MSEL2                             00000DF2
+MSEL3                             00000DF3
+N                                 00000004
+NACK                              00017F7C
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BOR                           00000000
+NOT_CS                            00000002
+NOT_DONE                          00000001
+NOT_PD                            00000002
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RD                            00000000
+NOT_RI                            00000004
+NOT_SS                            00000005
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 28
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+NOT_T1SYNC                        00000002
+NOT_T3SYNC                        00000002
+NOT_TO                            00000003
+NOT_W                             00000002
+NOT_WR                            00000001
+NOT_WRITE                         00000002
+OBF                               00000006
+OERR                              00000001
+OPMODE                            00000005
+OPMODE0                           00000005
+OPMODE1                           00000006
+OPMODE2                           00000007
+OSC1                              00000007
+OSC2                              00000006
+OSCCON                            00000FD3
+OSCFIE                            00000007
+OSCFIF                            00000007
+OSCFIP                            00000007
+OSCTUNE                           00000F9B
+OSTS                              00000003
+OV                                00000003
+P                                 00000004
+P1A                               00000004
+P1B                               00000005
+P1C                               00000006
+P1D                               00000007
+PC                                00000FF9
+PCFG0                             00000000
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000FF9
+PCLATH                            00000FFA
+PCLATU                            00000FFB
+PD                                00000002
+PDC0                              00000000
+PDC1                              00000001
+PDC2                              00000002
+PDC3                              00000003
+PDC4                              00000004
+PDC5                              00000005
+PDC6                              00000006
+PEIE                              00000006
+PEN                               00000002
+PGC                               00000006
+PGD                               00000007
+PGM                               00000005
+PIE1                              00000F9D
+PIE2                              00000FA0
+PIE3                              00000FA3
+PIR1                              00000F9E
+PIR2                              00000FA1
+PIR3                              00000FA4
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 29
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PLLEN                             00000006
+PLUSW0                            00000FEB
+PLUSW1                            00000FE3
+PLUSW2                            00000FDB
+POR                               00000001
+PORTA                             00000F80
+PORTB                             00000F81
+PORTC                             00000F82
+PORTD                             00000F83
+PORTE                             00000F84
+POSTDEC0                          00000FED
+POSTDEC1                          00000FE5
+POSTDEC2                          00000FDD
+POSTINC0                          00000FEE
+POSTINC1                          00000FE6
+POSTINC2                          00000FDE
+PR2                               00000FCB
+PREINC0                           00000FEC
+PREINC1                           00000FE4
+PREINC2                           00000FDC
+PROD                              00000FF3
+PRODH                             00000FF4
+PRODL                             00000FF3
+PRSEG0                            00000000
+PRSEG1                            00000001
+PRSEG2                            00000002
+PRSEN                             00000007
+PSA                               00000003
+PSP0                              00000000
+PSP1                              00000001
+PSP2                              00000002
+PSP3                              00000003
+PSP4                              00000004
+PSP5                              00000005
+PSP6                              00000006
+PSP7                              00000007
+PSPIE                             00000007
+PSPIF                             00000007
+PSPIP                             00000007
+PSPMODE                           00000004
+PSSAC0                            00000002
+PSSAC1                            00000003
+PSSBD0                            00000000
+PSSBD1                            00000001
+R                                 00000002
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RA5                               00000005
+RA6                               00000006
+RA7                               00000007
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 30
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RB0_B0DLC                         00000004
+RB0_B1DLC                         00000004
+RB0_B2DLC                         00000004
+RB0_B3DLC                         00000004
+RB0_B4DLC                         00000004
+RB0_B5DLC                         00000004
+RB0_DDRB                          00000000
+RB0_PORTB                         00000000
+RB0_RXB0DLC                       00000004
+RB0_RXB1DLC                       00000004
+RB1_B0DLC                         00000005
+RB1_B1DLC                         00000005
+RB1_B2DLC                         00000005
+RB1_B3DLC                         00000005
+RB1_B4DLC                         00000005
+RB1_B5DLC                         00000005
+RB1_DDRB                          00000001
+RB1_PORTB                         00000001
+RB1_RXB0DLC                       00000005
+RB1_RXB1DLC                       00000005
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RBIP                              00000000
+RBPU                              00000007
+RC0                               00000000
+RC1                               00000001
+RC2                               00000002
+RC3                               00000003
+RC4                               00000004
+RC5                               00000005
+RC6                               00000006
+RC7                               00000007
+RCEN                              00000003
+RCIDL                             00000006
+RCIE                              00000005
+RCIF                              00000005
+RCIP                              00000005
+RCON                              00000FD0
+RCREG                             00000FAE
+RCSTA                             00000FAB
+RD                                00000000
+RD0                               00000000
+RD1                               00000001
+RD16                              00000007
+RD2                               00000002
+RD3                               00000003
+RD4                               00000004
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 31
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RD5                               00000005
+RD6                               00000006
+RD7                               00000007
+RE0                               00000000
+RE1                               00000001
+RE2                               00000002
+RE3                               00000003
+READ_WRITE                        00000002
+REC0                              00000000
+REC1                              00000001
+REC2                              00000002
+REC3                              00000003
+REC4                              00000004
+REC5                              00000005
+REC6                              00000006
+REC7                              00000007
+RECICE_DATA                       00017F42
+RECIVE                            00017E76
+REQOP0                            00000005
+REQOP1                            00000006
+REQOP2                            00000007
+RESRB0                            00000004
+RESRB1                            00000005
+RI                                00000004
+RSEN                              00000001
+RTREN                             00000002
+RTRRO                             00000005
+RX                                00000007
+RX9                               00000006
+RX9D                              00000000
+RXB0CON                           00000F60
+RXB0D0                            00000F66
+RXB0D00                           00000000
+RXB0D01                           00000001
+RXB0D02                           00000002
+RXB0D03                           00000003
+RXB0D04                           00000004
+RXB0D05                           00000005
+RXB0D06                           00000006
+RXB0D07                           00000007
+RXB0D1                            00000F67
+RXB0D10                           00000000
+RXB0D11                           00000001
+RXB0D12                           00000002
+RXB0D13                           00000003
+RXB0D14                           00000004
+RXB0D15                           00000005
+RXB0D16                           00000006
+RXB0D17                           00000007
+RXB0D2                            00000F68
+RXB0D20                           00000000
+RXB0D21                           00000001
+RXB0D22                           00000002
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 32
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RXB0D23                           00000003
+RXB0D24                           00000004
+RXB0D25                           00000005
+RXB0D26                           00000006
+RXB0D27                           00000007
+RXB0D3                            00000F69
+RXB0D30                           00000000
+RXB0D31                           00000001
+RXB0D32                           00000002
+RXB0D33                           00000003
+RXB0D34                           00000004
+RXB0D35                           00000005
+RXB0D36                           00000006
+RXB0D37                           00000007
+RXB0D4                            00000F6A
+RXB0D40                           00000000
+RXB0D41                           00000001
+RXB0D42                           00000002
+RXB0D43                           00000003
+RXB0D44                           00000004
+RXB0D45                           00000005
+RXB0D46                           00000006
+RXB0D47                           00000007
+RXB0D5                            00000F6B
+RXB0D50                           00000000
+RXB0D51                           00000001
+RXB0D52                           00000002
+RXB0D53                           00000003
+RXB0D54                           00000004
+RXB0D55                           00000005
+RXB0D56                           00000006
+RXB0D57                           00000007
+RXB0D6                            00000F6C
+RXB0D60                           00000000
+RXB0D61                           00000001
+RXB0D62                           00000002
+RXB0D63                           00000003
+RXB0D64                           00000004
+RXB0D65                           00000005
+RXB0D66                           00000006
+RXB0D67                           00000007
+RXB0D7                            00000F6D
+RXB0D70                           00000000
+RXB0D71                           00000001
+RXB0D72                           00000002
+RXB0D73                           00000003
+RXB0D74                           00000004
+RXB0D75                           00000005
+RXB0D76                           00000006
+RXB0D77                           00000007
+RXB0DBEN                          00000002
+RXB0DLC                           00000F65
+RXB0EIDH                          00000F63
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 33
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RXB0EIDL                          00000F64
+RXB0IE                            00000000
+RXB0IF                            00000000
+RXB0IP                            00000000
+RXB0OVFL                          00000007
+RXB0SIDH                          00000F61
+RXB0SIDL                          00000F62
+RXB1CON                           00000F50
+RXB1D0                            00000F56
+RXB1D00                           00000000
+RXB1D01                           00000001
+RXB1D02                           00000002
+RXB1D03                           00000003
+RXB1D04                           00000004
+RXB1D05                           00000005
+RXB1D06                           00000006
+RXB1D07                           00000007
+RXB1D1                            00000F57
+RXB1D10                           00000000
+RXB1D11                           00000001
+RXB1D12                           00000002
+RXB1D13                           00000003
+RXB1D14                           00000004
+RXB1D15                           00000005
+RXB1D16                           00000006
+RXB1D17                           00000007
+RXB1D2                            00000F58
+RXB1D20                           00000000
+RXB1D21                           00000001
+RXB1D22                           00000002
+RXB1D23                           00000003
+RXB1D24                           00000004
+RXB1D25                           00000005
+RXB1D26                           00000006
+RXB1D27                           00000007
+RXB1D3                            00000F59
+RXB1D30                           00000000
+RXB1D31                           00000001
+RXB1D32                           00000002
+RXB1D33                           00000003
+RXB1D34                           00000004
+RXB1D35                           00000005
+RXB1D36                           00000006
+RXB1D37                           00000007
+RXB1D4                            00000F5A
+RXB1D40                           00000000
+RXB1D41                           00000001
+RXB1D42                           00000002
+RXB1D43                           00000003
+RXB1D44                           00000004
+RXB1D45                           00000005
+RXB1D46                           00000006
+RXB1D47                           00000007
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 34
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RXB1D5                            00000F5B
+RXB1D50                           00000000
+RXB1D51                           00000001
+RXB1D52                           00000002
+RXB1D53                           00000003
+RXB1D54                           00000004
+RXB1D55                           00000005
+RXB1D56                           00000006
+RXB1D57                           00000007
+RXB1D6                            00000F5C
+RXB1D60                           00000000
+RXB1D61                           00000001
+RXB1D62                           00000002
+RXB1D63                           00000003
+RXB1D64                           00000004
+RXB1D65                           00000005
+RXB1D66                           00000006
+RXB1D67                           00000007
+RXB1D7                            00000F5D
+RXB1D70                           00000000
+RXB1D71                           00000001
+RXB1D72                           00000002
+RXB1D73                           00000003
+RXB1D74                           00000004
+RXB1D75                           00000005
+RXB1D76                           00000006
+RXB1D77                           00000007
+RXB1DLC                           00000F55
+RXB1EIDH                          00000F53
+RXB1EIDL                          00000F54
+RXB1IE                            00000001
+RXB1IF                            00000001
+RXB1IP                            00000001
+RXB1OVFL                          00000006
+RXB1SIDH                          00000F51
+RXB1SIDL                          00000F52
+RXBODBEN                          00000002
+RXBP                              00000003
+RXBnIE                            00000001
+RXBnIF                            00000001
+RXBnIP                            00000001
+RXBnOVFL                          00000006
+RXERRCNT                          00000F75
+RXF0EIDH                          00000F02
+RXF0EIDL                          00000F03
+RXF0EN                            00000000
+RXF0SIDH                          00000F00
+RXF0SIDL                          00000F01
+RXF10EIDH                         00000D76
+RXF10EIDL                         00000D77
+RXF10EN                           00000002
+RXF10SIDH                         00000D74
+RXF10SIDL                         00000D75
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 35
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RXF11EIDH                         00000D7A
+RXF11EIDL                         00000D7B
+RXF11EN                           00000003
+RXF11SIDH                         00000D78
+RXF11SIDL                         00000D79
+RXF12EIDH                         00000D82
+RXF12EIDL                         00000D83
+RXF12EN                           00000004
+RXF12SIDH                         00000D80
+RXF12SIDL                         00000D81
+RXF13EIDH                         00000D86
+RXF13EIDL                         00000D87
+RXF13EN                           00000005
+RXF13SIDH                         00000D84
+RXF13SIDL                         00000D85
+RXF14EIDH                         00000D8A
+RXF14EIDL                         00000D8B
+RXF14EN                           00000006
+RXF14SIDH                         00000D88
+RXF14SIDL                         00000D89
+RXF15EIDH                         00000D92
+RXF15EIDL                         00000D93
+RXF15EN                           00000007
+RXF15SIDH                         00000D90
+RXF15SIDL                         00000D91
+RXF1EIDH                          00000F06
+RXF1EIDL                          00000F07
+RXF1EN                            00000001
+RXF1SIDH                          00000F04
+RXF1SIDL                          00000F05
+RXF2EIDH                          00000F0A
+RXF2EIDL                          00000F0B
+RXF2EN                            00000002
+RXF2SIDH                          00000F08
+RXF2SIDL                          00000F09
+RXF3EIDH                          00000F0E
+RXF3EIDL                          00000F0F
+RXF3EN                            00000003
+RXF3SIDH                          00000F0C
+RXF3SIDL                          00000F0D
+RXF4EIDH                          00000F12
+RXF4EIDL                          00000F13
+RXF4EN                            00000004
+RXF4SIDH                          00000F10
+RXF4SIDL                          00000F11
+RXF5EIDH                          00000F16
+RXF5EIDL                          00000F17
+RXF5EN                            00000005
+RXF5SIDH                          00000F14
+RXF5SIDL                          00000F15
+RXF6EIDH                          00000D62
+RXF6EIDL                          00000D63
+RXF6EN                            00000006
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 36
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RXF6SIDH                          00000D60
+RXF6SIDL                          00000D61
+RXF7EIDH                          00000D66
+RXF7EIDL                          00000D67
+RXF7EN                            00000007
+RXF7SIDH                          00000D64
+RXF7SIDL                          00000D65
+RXF8EIDH                          00000D6A
+RXF8EIDL                          00000D6B
+RXF8EN                            00000000
+RXF8SIDH                          00000D68
+RXF8SIDL                          00000D69
+RXF9EIDH                          00000D72
+RXF9EIDL                          00000D73
+RXF9EN                            00000001
+RXF9SIDH                          00000D70
+RXF9SIDL                          00000D71
+RXFBCON0                          00000DE0
+RXFBCON1                          00000DE1
+RXFBCON2                          00000DE2
+RXFBCON3                          00000DE3
+RXFBCON4                          00000DE4
+RXFBCON5                          00000DE5
+RXFBCON6                          00000DE6
+RXFBCON7                          00000DE7
+RXFCON0                           00000DD4
+RXFCON1                           00000DD5
+RXFUL                             00000007
+RXM0                              00000005
+RXM0EIDH                          00000F1A
+RXM0EIDL                          00000F1B
+RXM0SIDH                          00000F18
+RXM0SIDL                          00000F19
+RXM1                              00000006
+RXM1EIDH                          00000F1E
+RXM1EIDL                          00000F1F
+RXM1SIDH                          00000F1C
+RXM1SIDL                          00000F1D
+RXRTR                             00000006
+RXRTRRO_B0CON                     00000005
+RXRTRRO_B1CON                     00000005
+RXRTRRO_B2CON                     00000005
+RXRTRRO_B3CON                     00000005
+RXRTRRO_B4CON                     00000005
+RXRTRRO_B5CON                     00000005
+RXRTRRO_RXB0CON                   00000003
+RXRTRRO_RXB1CON                   00000003
+RXWARN                            00000001
+R_W                               00000002
+S                                 00000003
+SAM                               00000006
+SBOREN                            00000006
+SCK                               00000003
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 37
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SCKP                              00000004
+SCL                               00000003
+SCS0                              00000000
+SCS1                              00000001
+SDA                               00000004
+SDFLC                             00000DD8
+SDI                               00000004
+SDO                               00000005
+SECOND_CHAR_RECEICED              00017F2E
+SEG1PH0                           00000003
+SEG1PH1                           00000004
+SEG1PH2                           00000005
+SEG2PH0                           00000000
+SEG2PH1                           00000001
+SEG2PH2                           00000002
+SEG2PHT                           00000007
+SEG2PHTS                          00000007
+SEN                               00000000
+SENDB                             00000003
+SID0                              00000005
+SID1                              00000006
+SID10                             00000007
+SID2                              00000007
+SID3                              00000000
+SID4                              00000001
+SID5                              00000002
+SID6                              00000003
+SID7                              00000004
+SID8                              00000005
+SID9                              00000006
+SJW0                              00000006
+SJW1                              00000007
+SMP                               00000007
+SP0                               00000000
+SP1                               00000001
+SP2                               00000002
+SP3                               00000003
+SP4                               00000004
+SPBRG                             00000FAF
+SPBRGH                            00000FB0
+SPEN                              00000007
+SREN                              00000005
+SRR                               00000004
+SS                                00000005
+SSPADD                            00000FC8
+SSPBUF                            00000FC9
+SSPCON1                           00000FC6
+SSPCON2                           00000FC5
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPIP                             00000003
+SSPM0                             00000000
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 38
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+SSPSTAT                           00000FC7
+START_BOOT                        00017F3E
+STATUS                            00000FD8
+STKFUL                            00000007
+STKOVF                            00000007
+STKPTR                            00000FFC
+STKPTR0                           00000000
+STKPTR1                           00000001
+STKPTR2                           00000002
+STKPTR3                           00000003
+STKPTR4                           00000004
+STKUNF                            00000006
+SWDTE                             00000000
+SWDTEN                            00000000
+SYNC                              00000004
+T08BIT                            00000006
+T0CKI                             00000004
+T0CON                             00000FD5
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0IP                              00000002
+T0PS0                             00000000
+T0PS1                             00000001
+T0PS2                             00000002
+T0PS3                             00000003
+T0SE                              00000004
+T13CKI                            00000000
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000FCD
+T1INSYNC                          00000002
+T1OSCEN                           00000003
+T1OSI                             00000001
+T1OSO                             00000000
+T1RUN                             00000006
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000FCA
+T2OUTPS0                          00000003
+T2OUTPS1                          00000004
+T2OUTPS2                          00000005
+T2OUTPS3                          00000006
+T3CCP1                            00000003
+T3CCP2                            00000006
+T3CKPS0                           00000004
+T3CKPS1                           00000005
+T3CON                             00000FB1
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 39
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+T3ECCP1                           00000006
+T3NSYNC                           00000002
+T3SYNC                            00000002
+TABLAT                            00000FF5
+TBLPTR                            00000FF6
+TBLPTRH                           00000FF7
+TBLPTRL                           00000FF6
+TBLPTRU                           00000FF8
+TEC0                              00000000
+TEC1                              00000001
+TEC2                              00000002
+TEC3                              00000003
+TEC4                              00000004
+TEC5                              00000005
+TEC6                              00000006
+TEC7                              00000007
+TERMINIT                          00017FB6
+TIMER_INIT                        00017ECA
+TMR0H                             00000FD7
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR0IP                            00000002
+TMR0L                             00000FD6
+TMR0ON                            00000007
+TMR1CS                            00000001
+TMR1H                             00000FCF
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1IP                            00000000
+TMR1L                             00000FCE
+TMR1ON                            00000000
+TMR2                              00000FCC
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2IP                            00000001
+TMR2ON                            00000002
+TMR3CS                            00000001
+TMR3H                             00000FB3
+TMR3IE                            00000001
+TMR3IF                            00000001
+TMR3IP                            00000001
+TMR3L                             00000FB2
+TMR3ON                            00000000
+TO                                00000003
+TOS                               00000FFD
+TOSH                              00000FFE
+TOSL                              00000FFD
+TOSU                              00000FFF
+TRANSMIT                          00017E80
+TRISA                             00000F92
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 40
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TRISA3                            00000003
+TRISA4                            00000004
+TRISA5                            00000005
+TRISA6                            00000006
+TRISA7                            00000007
+TRISB                             00000F93
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TRISC                             00000F94
+TRISC0                            00000000
+TRISC1                            00000001
+TRISC2                            00000002
+TRISC3                            00000003
+TRISC4                            00000004
+TRISC5                            00000005
+TRISC6                            00000006
+TRISC7                            00000007
+TRISD                             00000F95
+TRISD0                            00000000
+TRISD1                            00000001
+TRISD2                            00000002
+TRISD3                            00000003
+TRISD4                            00000004
+TRISD5                            00000005
+TRISD6                            00000006
+TRISD7                            00000007
+TRISE                             00000F96
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRMT                              00000001
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TX                                00000006
+TX9                               00000006
+TX9D                              00000000
+TXABT                             00000006
+TXB0CON                           00000F40
+TXB0D0                            00000F46
+TXB0D00                           00000000
+TXB0D01                           00000001
+TXB0D02                           00000002
+TXB0D03                           00000003
+TXB0D04                           00000004
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 41
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TXB0D05                           00000005
+TXB0D06                           00000006
+TXB0D07                           00000007
+TXB0D1                            00000F47
+TXB0D10                           00000000
+TXB0D11                           00000001
+TXB0D12                           00000002
+TXB0D13                           00000003
+TXB0D14                           00000004
+TXB0D15                           00000005
+TXB0D16                           00000006
+TXB0D17                           00000007
+TXB0D2                            00000F48
+TXB0D20                           00000000
+TXB0D21                           00000001
+TXB0D22                           00000002
+TXB0D23                           00000003
+TXB0D24                           00000004
+TXB0D25                           00000005
+TXB0D26                           00000006
+TXB0D27                           00000007
+TXB0D3                            00000F49
+TXB0D30                           00000000
+TXB0D31                           00000001
+TXB0D32                           00000002
+TXB0D33                           00000003
+TXB0D34                           00000004
+TXB0D35                           00000005
+TXB0D36                           00000006
+TXB0D37                           00000007
+TXB0D4                            00000F4A
+TXB0D40                           00000000
+TXB0D41                           00000001
+TXB0D42                           00000002
+TXB0D43                           00000003
+TXB0D44                           00000004
+TXB0D45                           00000005
+TXB0D46                           00000006
+TXB0D47                           00000007
+TXB0D5                            00000F4B
+TXB0D50                           00000000
+TXB0D51                           00000001
+TXB0D52                           00000002
+TXB0D53                           00000003
+TXB0D54                           00000004
+TXB0D55                           00000005
+TXB0D56                           00000006
+TXB0D57                           00000007
+TXB0D6                            00000F4C
+TXB0D60                           00000000
+TXB0D61                           00000001
+TXB0D62                           00000002
+TXB0D63                           00000003
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 42
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TXB0D64                           00000004
+TXB0D65                           00000005
+TXB0D66                           00000006
+TXB0D67                           00000007
+TXB0D7                            00000F4D
+TXB0D70                           00000000
+TXB0D71                           00000001
+TXB0D72                           00000002
+TXB0D73                           00000003
+TXB0D74                           00000004
+TXB0D75                           00000005
+TXB0D76                           00000006
+TXB0D77                           00000007
+TXB0DLC                           00000F45
+TXB0EIDH                          00000F43
+TXB0EIDL                          00000F44
+TXB0IE                            00000002
+TXB0IF                            00000002
+TXB0IP                            00000002
+TXB0SIDH                          00000F41
+TXB0SIDL                          00000F42
+TXB1CON                           00000F30
+TXB1D0                            00000F36
+TXB1D00                           00000000
+TXB1D01                           00000001
+TXB1D02                           00000002
+TXB1D03                           00000003
+TXB1D04                           00000004
+TXB1D05                           00000005
+TXB1D06                           00000006
+TXB1D07                           00000007
+TXB1D1                            00000F37
+TXB1D10                           00000000
+TXB1D11                           00000001
+TXB1D12                           00000002
+TXB1D13                           00000003
+TXB1D14                           00000004
+TXB1D15                           00000005
+TXB1D16                           00000006
+TXB1D17                           00000007
+TXB1D2                            00000F38
+TXB1D20                           00000000
+TXB1D21                           00000001
+TXB1D22                           00000002
+TXB1D23                           00000003
+TXB1D24                           00000004
+TXB1D25                           00000005
+TXB1D26                           00000006
+TXB1D27                           00000007
+TXB1D3                            00000F39
+TXB1D30                           00000000
+TXB1D31                           00000001
+TXB1D32                           00000002
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 43
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TXB1D33                           00000003
+TXB1D34                           00000004
+TXB1D35                           00000005
+TXB1D36                           00000006
+TXB1D37                           00000007
+TXB1D4                            00000F3A
+TXB1D40                           00000000
+TXB1D41                           00000001
+TXB1D42                           00000002
+TXB1D43                           00000003
+TXB1D44                           00000004
+TXB1D45                           00000005
+TXB1D46                           00000006
+TXB1D47                           00000007
+TXB1D5                            00000F3B
+TXB1D50                           00000000
+TXB1D51                           00000001
+TXB1D52                           00000002
+TXB1D53                           00000003
+TXB1D54                           00000004
+TXB1D55                           00000005
+TXB1D56                           00000006
+TXB1D57                           00000007
+TXB1D6                            00000F3C
+TXB1D60                           00000000
+TXB1D61                           00000001
+TXB1D62                           00000002
+TXB1D63                           00000003
+TXB1D64                           00000004
+TXB1D65                           00000005
+TXB1D66                           00000006
+TXB1D67                           00000007
+TXB1D7                            00000F3D
+TXB1D70                           00000000
+TXB1D71                           00000001
+TXB1D72                           00000002
+TXB1D73                           00000003
+TXB1D74                           00000004
+TXB1D75                           00000005
+TXB1D76                           00000006
+TXB1D77                           00000007
+TXB1DLC                           00000F35
+TXB1EIDH                          00000F33
+TXB1EIDL                          00000F34
+TXB1IE                            00000003
+TXB1IF                            00000003
+TXB1IP                            00000003
+TXB1SIDH                          00000F31
+TXB1SIDL                          00000F32
+TXB2CON                           00000F20
+TXB2D0                            00000F26
+TXB2D00                           00000000
+TXB2D01                           00000001
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 44
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TXB2D02                           00000002
+TXB2D03                           00000003
+TXB2D04                           00000004
+TXB2D05                           00000005
+TXB2D06                           00000006
+TXB2D07                           00000007
+TXB2D1                            00000F27
+TXB2D10                           00000000
+TXB2D11                           00000001
+TXB2D12                           00000002
+TXB2D13                           00000003
+TXB2D14                           00000004
+TXB2D15                           00000005
+TXB2D16                           00000006
+TXB2D17                           00000007
+TXB2D2                            00000F28
+TXB2D20                           00000000
+TXB2D21                           00000001
+TXB2D22                           00000002
+TXB2D23                           00000003
+TXB2D24                           00000004
+TXB2D25                           00000005
+TXB2D26                           00000006
+TXB2D27                           00000007
+TXB2D3                            00000F29
+TXB2D30                           00000000
+TXB2D31                           00000001
+TXB2D32                           00000002
+TXB2D33                           00000003
+TXB2D34                           00000004
+TXB2D35                           00000005
+TXB2D36                           00000006
+TXB2D37                           00000007
+TXB2D4                            00000F2A
+TXB2D40                           00000000
+TXB2D41                           00000001
+TXB2D42                           00000002
+TXB2D43                           00000003
+TXB2D44                           00000004
+TXB2D45                           00000005
+TXB2D46                           00000006
+TXB2D47                           00000007
+TXB2D5                            00000F2B
+TXB2D50                           00000000
+TXB2D51                           00000001
+TXB2D52                           00000002
+TXB2D53                           00000003
+TXB2D54                           00000004
+TXB2D55                           00000005
+TXB2D56                           00000006
+TXB2D57                           00000007
+TXB2D6                            00000F2C
+TXB2D60                           00000000
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 45
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TXB2D61                           00000001
+TXB2D62                           00000002
+TXB2D63                           00000003
+TXB2D64                           00000004
+TXB2D65                           00000005
+TXB2D66                           00000006
+TXB2D67                           00000007
+TXB2D7                            00000F2D
+TXB2D70                           00000000
+TXB2D71                           00000001
+TXB2D72                           00000002
+TXB2D73                           00000003
+TXB2D74                           00000004
+TXB2D75                           00000005
+TXB2D76                           00000006
+TXB2D77                           00000007
+TXB2DLC                           00000F25
+TXB2EIDH                          00000F23
+TXB2EIDL                          00000F24
+TXB2IE                            00000004
+TXB2IF                            00000004
+TXB2IP                            00000004
+TXB2SIDH                          00000F21
+TXB2SIDL                          00000F22
+TXBIE                             00000DFC
+TXBIF                             00000007
+TXBIFBXB2CON                      00000007
+TXBIFTXB1CON                      00000007
+TXBIP                             00000004
+TXBO                              00000005
+TXBP                              00000004
+TXBnIE                            00000004
+TXBnIF                            00000004
+TXBnIP                            00000004
+TXEN                              00000005
+TXERR                             00000004
+TXERRCNT                          00000F76
+TXIE                              00000004
+TXIF                              00000004
+TXIP                              00000004
+TXLARB                            00000005
+TXPRI0                            00000000
+TXPRI1                            00000001
+TXREG                             00000FAD
+TXREQ                             00000003
+TXRTR                             00000006
+TXSTA                             00000FAC
+TXWARN                            00000002
+UA                                00000001
+VCFG0                             00000004
+VCFG1                             00000005
+VDIRMAG                           00000007
+VREFM                             00000002
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 46
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+VREFP                             00000003
+W                                 00000000
+WAKDIS                            00000007
+WAKFIL                            00000006
+WAKIE                             00000006
+WAKIF                             00000006
+WAKIP                             00000006
+WCOL                              00000007
+WDTCON                            00000FD1
+WIN0                              00000001
+WIN1                              00000002
+WIN2                              00000003
+WR                                00000001
+WRD                               00017E76
+WREG                              00000FE8
+WREN                              00000002
+WRERR                             00000003
+WTD                               00017E84
+WUE                               00000001
+Z                                 00000002
+_BBSIZ_1024_4L                    000000CF
+_BBSIZ_2048_4L                    000000DF
+_BBSIZ_4096_4L                    000000EF
+_BOREN_BOACTIVE_2L                000000FD
+_BOREN_BOHW_2L                    000000FF
+_BOREN_OFF_2L                     000000F9
+_BOREN_SBORENCTRL_2L              000000FB
+_BORV_0_2L                        000000E7
+_BORV_1_2L                        000000EF
+_BORV_2_2L                        000000F7
+_BORV_3_2L                        000000FF
+_CONFIG1H                         00300001
+_CONFIG2H                         00300003
+_CONFIG2L                         00300002
+_CONFIG3H                         00300005
+_CONFIG4L                         00300006
+_CONFIG5H                         00300009
+_CONFIG5L                         00300008
+_CONFIG6H                         0030000B
+_CONFIG6L                         0030000A
+_CONFIG7H                         0030000D
+_CONFIG7L                         0030000C
+_CP0_OFF_5L                       000000FF
+_CP0_ON_5L                        000000FE
+_CP1_OFF_5L                       000000FF
+_CP1_ON_5L                        000000FD
+_CP2_OFF_5L                       000000FF
+_CP2_ON_5L                        000000FB
+_CP3_OFF_5L                       000000FF
+_CP3_ON_5L                        000000F7
+_CP4_OFF_5L                       000000FF
+_CP4_ON_5L                        000000EF
+_CP5_OFF_5L                       000000FF
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 47
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_CP5_ON_5L                        000000DF
+_CPB_OFF_5H                       000000FF
+_CPB_ON_5H                        000000BF
+_CPD_OFF_5H                       000000FF
+_CPD_ON_5H                        0000007F
+_DEBUG_OFF_4L                     000000FF
+_DEBUG_ON_4L                      0000007F
+_DEVID1                           003FFFFE
+_DEVID2                           003FFFFF
+_EBTR0_OFF_7L                     000000FF
+_EBTR0_ON_7L                      000000FE
+_EBTR1_OFF_7L                     000000FF
+_EBTR1_ON_7L                      000000FD
+_EBTR2_OFF_7L                     000000FF
+_EBTR2_ON_7L                      000000FB
+_EBTR3_OFF_7L                     000000FF
+_EBTR3_ON_7L                      000000F7
+_EBTR4_OFF_7L                     000000FF
+_EBTR4_ON_7L                      000000EF
+_EBTR5_OFF_7L                     000000FF
+_EBTR5_ON_7L                      000000DF
+_EBTRB_OFF_7H                     000000FF
+_EBTRB_ON_7H                      000000BF
+_FCMEN_OFF_1H                     000000BF
+_FCMEN_ON_1H                      000000FF
+_IDLOC0                           00200000
+_IDLOC1                           00200001
+_IDLOC2                           00200002
+_IDLOC3                           00200003
+_IDLOC4                           00200004
+_IDLOC5                           00200005
+_IDLOC6                           00200006
+_IDLOC7                           00200007
+_IESO_OFF_1H                      0000007F
+_IESO_ON_1H                       000000FF
+_LPT1OSC_OFF_3H                   000000FB
+_LPT1OSC_ON_3H                    000000FF
+_LVP_OFF_4L                       000000FB
+_LVP_ON_4L                        000000FF
+_MCLRE_OFF_3H                     0000007F
+_MCLRE_ON_3H                      000000FF
+_OSC_ECIO_1H                      000000F5
+_OSC_EC_1H                        000000F4
+_OSC_HSPLL_1H                     000000F6
+_OSC_HS_1H                        000000F2
+_OSC_IRCIO67_1H                   000000F8
+_OSC_IRCIO7_1H                    000000F9
+_OSC_LP_1H                        000000F0
+_OSC_RCIO_1H                      000000F7
+_OSC_RC_1H                        000000F3
+_OSC_XT_1H                        000000F1
+_PBADEN_OFF_3H                    000000FD
+_PBADEN_ON_3H                     000000FF
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 48
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_PWRT_OFF_2L                      000000FF
+_PWRT_ON_2L                       000000FE
+_STVREN_OFF_4L                    000000FE
+_STVREN_ON_4L                     000000FF
+_WDTPS_1024_2H                    000000F5
+_WDTPS_128_2H                     000000EF
+_WDTPS_16384_2H                   000000FD
+_WDTPS_16_2H                      000000E9
+_WDTPS_1_2H                       000000E1
+_WDTPS_2048_2H                    000000F7
+_WDTPS_256_2H                     000000F1
+_WDTPS_2_2H                       000000E3
+_WDTPS_32768_2H                   000000FF
+_WDTPS_32_2H                      000000EB
+_WDTPS_4096_2H                    000000F9
+_WDTPS_4_2H                       000000E5
+_WDTPS_512_2H                     000000F3
+_WDTPS_64_2H                      000000ED
+_WDTPS_8192_2H                    000000FB
+_WDTPS_8_2H                       000000E7
+_WDT_OFF_2H                       000000FE
+_WDT_ON_2H                        000000FF
+_WRT0_OFF_6L                      000000FF
+_WRT0_ON_6L                       000000FE
+_WRT1_OFF_6L                      000000FF
+_WRT1_ON_6L                       000000FD
+_WRT2_OFF_6L                      000000FF
+_WRT2_ON_6L                       000000FB
+_WRT3_OFF_6L                      000000FF
+_WRT3_ON_6L                       000000F7
+_WRT4_OFF_6L                      000000FF
+_WRT4_ON_6L                       000000EF
+_WRT5_OFF_6L                      000000FF
+_WRT5_ON_6L                       000000DF
+_WRTB_OFF_6H                      000000FF
+_WRTB_ON_6H                       000000BF
+_WRTC_OFF_6H                      000000FF
+_WRTC_ON_6H                       000000DF
+_WRTD_OFF_6H                      000000FF
+_WRTD_ON_6H                       0000007F
+_XINST_OFF_4L                     000000BF
+_XINST_ON_4L                      000000FF
+__18F4685                         00000001
+MPASM  5.30.01                   FLASH_WRITE.ASM   4-20-2012  13:15:54         PAGE 49
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+
+0000 : XXXX----XX------ --------XX------ ---------------- ----------------
+7E40 : ---------------- ---------------- ---------------- ------XXXXXXXXXX
+7E80 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+7EC0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+7F00 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+7F40 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+7F80 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+7FC0 : XXXX------------ ---------------- ---------------- ----------------
+0000 : XXXXXXXXXXXXXX-- ---------------- ---------------- ----------------
+
+All other memory blocks unused.
+
+Program Memory Bytes Used:   356
+Program Memory Bytes Free: 97948
+
+
+Errors   :     0
+Warnings :    10 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

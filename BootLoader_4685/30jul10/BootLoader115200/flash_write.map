@@ -1,0 +1,88 @@
+MPLINK 4.30.01, Linker
+Linker Map File - Created Tue Nov 01 09:14:28 2011
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000000
+                   .org_1       code   0x000000    program   0x000004
+                   .org_2       code   0x000008    program   0x000002
+                   .org_3       code   0x000018    program   0x000002
+                   .org_4       code   0x017e76    program   0x00014e
+.config_300000_FLASH_WRITE.O       code   0x300000    program   0x000002
+.config_300002_FLASH_WRITE.O       code   0x300002    program   0x000002
+.config_300004_FLASH_WRITE.O       code   0x300004    program   0x000002
+.config_300006_FLASH_WRITE.O       code   0x300006    program   0x000002
+.config_300008_FLASH_WRITE.O       code   0x300008    program   0x000002
+.config_30000A_FLASH_WRITE.O       code   0x30000a    program   0x000002
+.config_30000C_FLASH_WRITE.O       code   0x30000c    program   0x000002
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000003      
+                            0x000008    0x000009      
+                            0x000018    0x000019      
+                            0x017e76    0x017fc3      
+                            0x300000    0x30000d      
+            356 out of 99352 program addresses used, program memory utilization is 0%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                      ACK   0x017fb0    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                CFG_WRITE   0x017fa0    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                  DATA_RX   0x017f68    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+              DELAY_LOOP1   0x017ed6    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+              DELAY_LOOP2   0x017f0a    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                    ERASE   0x017f8a    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+      FIRST_CHAR_RECEICED   0x017efa    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+          FLASH_LOAD_DATA   0x017f90    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+          FLASH_OPERATION   0x017e8a    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+              FLASH_WRITE   0x017f82    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                FTERMINIT   0x017fb8    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                     MAIN   0x017e9e    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                     NACK   0x017f7c    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+              RECICE_DATA   0x017f42    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                   RECIVE   0x017e76    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+     SECOND_CHAR_RECEICED   0x017f2e    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+               START_BOOT   0x017f3e    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                 TERMINIT   0x017fb6    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+               TIMER_INIT   0x017eca    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                 TRANSMIT   0x017e80    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                      WRD   0x017e76    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                      WTD   0x017e84    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                      WRD   0x017e76    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                   RECIVE   0x017e76    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                 TRANSMIT   0x017e80    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                      WTD   0x017e84    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+          FLASH_OPERATION   0x017e8a    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                     MAIN   0x017e9e    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+               TIMER_INIT   0x017eca    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+              DELAY_LOOP1   0x017ed6    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+      FIRST_CHAR_RECEICED   0x017efa    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+              DELAY_LOOP2   0x017f0a    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+     SECOND_CHAR_RECEICED   0x017f2e    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+               START_BOOT   0x017f3e    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+              RECICE_DATA   0x017f42    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                  DATA_RX   0x017f68    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                     NACK   0x017f7c    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+              FLASH_WRITE   0x017f82    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                    ERASE   0x017f8a    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+          FLASH_LOAD_DATA   0x017f90    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                CFG_WRITE   0x017fa0    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                      ACK   0x017fb0    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                 TERMINIT   0x017fb6    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+                FTERMINIT   0x017fb8    program     static E:\WORK\Powerlite\BootLoader_4685\30jul10\BootLoader115200\flash_write.ASM
+
+
